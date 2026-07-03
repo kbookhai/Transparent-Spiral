@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 응모하기</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+        .container { 
+            background: #ffffff; 
+            width: 100%; 
+            max-width: 480px; 
+            padding: 35px 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06); 
+        }
+        h1 { font-size: 24px; color: #111111; margin-bottom: 8px; text-align: center; }
+        .subtitle { font-size: 14px; color: #666666; margin-bottom: 25px; text-align: center; line-height: 1.4; }
+        .form-group { margin-bottom: 18px; text-align: left; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #444444; margin-bottom: 6px; }
+        input[type="text"], input[type="tel"], textarea { 
+            width: 100%; padding: 12px 14px; border: 1px solid #cccccc; border-radius: 6px; font-size: 15px; background-color: #fff; transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus { border-color: #007bff; outline: none; }
+        textarea { resize: vertical; min-height: 100px; }
+        .privacy-box { background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; border-radius: 6px; font-size: 12px; color: #666666; line-height: 1.5; margin-bottom: 18px; text-align: left; }
+        .checkbox-group { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #333333; margin-bottom: 25px; text-align: left; cursor: pointer; }
+        .checkbox-group input { margin-top: 3px; }
+        .btn { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+        .btn:disabled { background: #cccccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 이벤트 응모하기</h1>
+        <p class="subtitle">필수 정보를 입력하고 이벤트에 응모하세요!</p>
+        
+        <form name="submit-to-google-sheet">
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">연락처</label>
+                <input type="tel" id="phone" name="phone" placeholder="연락처를 입력하세요 (예: 010-1234-5678)" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">응모 문구</label>
+                <textarea id="message" name="message" placeholder="이벤트 응모 문구를 적어주세요" required></textarea>
+            </div>
+            
+            <div class="privacy-box">
+                <strong>[개인정보 수집 및 이용 동의]</strong><br>
+                수집 항목: 이름, 연락처, 응모 문구<br>
+                수집 목적: 이벤트 추첨 및 경품 발송<br>
+                보유 기간: 이벤트 종료 및 경품 지급 완료 후 즉시 파기
+            </div>
+            
+            <label class="checkbox-group">
+                <input type="checkbox" id="privacyCheck" required>
+                <span>위 개인정보 수집 및 이용에 동의합니다. (필수)</span>
+            </label>
+            
+            <button type="submit" class="btn" id="submitBtn">응모하기</button>
+        </form>
+    </div>
+
+    <script>
+        // ★ 중요: 1번 과정에서 배포 완료 후 받은 '웹 앱 URL'을 아래 따옴표 안에 붙여넣으세요.
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz32sfRHCA8XJYZ_80jc35JwiN02HViGq6amP0_Qs4tIyRP19QxdOZVU_ffCGt1x-NN5A/exec';
+        const form = document.forms['submit-to-google-sheet'];
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault(); // 기본 새로고침 현상 막기
+            
+            // 중복 제출 방지를 위한 버튼 비활성화
+            submitBtn.disabled = true;
+            submitBtn.innerText = '제출 중...';
+
+            // 구글 스크립트로 데이터 전송
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    alert('🎉 이벤트 응모가 성공적으로 완료되었습니다!');
+                    form.reset(); // 입력란 초기화
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = '응모하기';
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert('앗! 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = '응모하기';
+                });
+        });
+    </script>
+</body>
+</html>
